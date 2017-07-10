@@ -50,6 +50,7 @@ object MetricHelper {
 
   implicit class MetricRegistryOps(val self: MetricRegistry) extends AnyVal {
     def gauge[T](name: String, f: => T): Gauge[T] = {
+      self remove name
       self.register(name, GaugeF(f))
     }
   }
