@@ -33,8 +33,12 @@ scalacOptions ++= Seq(
 
 scalacOptions in (Compile,doc) ++= Seq("-groups", "-implicits", "-no-link-warnings")
 
+val metricsVersion = "3.2.2"
+
 libraryDependencies ++= Seq(
-  "io.dropwizard.metrics" % "metrics-core" % "3.2.1"
+  "io.dropwizard.metrics" % "metrics-core" % metricsVersion,
+  "io.dropwizard.metrics" % "metrics-graphite" % metricsVersion,
+  "com.typesafe" % "config" % "1.3.1"
 )
 
 licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")))

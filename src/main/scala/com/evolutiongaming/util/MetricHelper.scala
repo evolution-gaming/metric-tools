@@ -1,13 +1,19 @@
 package com.evolutiongaming.util
 
-import com.codahale.metrics.{Gauge, Histogram, MetricRegistry, Timer}
+import java.net.InetSocketAddress
+import java.util.concurrent.TimeUnit
+
+import com.codahale.metrics._
 
 import scala.compat.Platform
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
+import com.codahale.metrics.graphite.{Graphite, GraphiteReporter}
+import com.typesafe.config.ConfigFactory
 
 object MetricHelper {
+  private lazy val config = ConfigFactory.load
 
   object GaugeF {
     def apply[T](f: => T): Gauge[T] = new Gauge[T] { def getValue: T = f }
@@ -54,4 +60,35 @@ object MetricHelper {
       self.register(name, GaugeF(f))
     }
   }
+
+  /**
+    * Exports MetricRegistry to graphite and JMX¶
+    * 
+    * @param domain root name used in graphite for the metrics tree
+    * @param registry MetricRegistry
+    * @return
+    */
+  def exportRegistry(domain: String, registry: MetricRegistry): MetricRegistry = {
+    JmxReporter.forRegistry(registry).inDomain(domain).build.start()
+    startGraphiteExporter(domain, registry)
+    registry
+  }
+  
+  def startGraphiteExporter(domain: String, registry: MetricRegistry): Option[GraphiteReporter] = {
+    val host = config.getString("graphite.host")
+    if ("" != host) {
+      val node = config.getString("graphite.node")
+      val port = config.getInt("graphite.port")
+      val graphite = new Graphite(new InetSocketAddress(host, port))
+      val reporter = GraphiteReporter.forRegistry(registry)
+        .prefixedWith(node + "." + domain)
+        .convertRatesTo(TimeUnit.SECONDS)
+        .convertDurationsTo(TimeUnit.MILLISECONDS)
+        .filter(MetricFilter.ALL)
+        .build(graphite)
+      reporter.start(1, TimeUnit.MINUTES)
+      Some(reporter)
+    } else None
+  }
+
 }
