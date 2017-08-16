@@ -62,7 +62,7 @@ object MetricHelper {
   }
 
   /**
-    * Exports MetricRegistry to graphite and JMX¶
+    * Exports MetricRegistry to graphite and JMX
     * 
     * @param domain root name used in graphite for the metrics tree
     * @param registry MetricRegistry
