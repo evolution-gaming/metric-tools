@@ -62,14 +62,12 @@ object MetricHelper {
   }
 
   /**
-    * Exports MetricRegistry to graphite and JMX
+    * Exports MetricRegistry to Graphite
     * 
     * @param domain root name used in graphite for the metrics tree
     * @param registry MetricRegistry
-    * @return
     */
   def exportRegistry(domain: String, registry: MetricRegistry): MetricRegistry = {
-    JmxReporter.forRegistry(registry).inDomain(domain).build.start()
     startGraphiteExporter(domain, registry)
     registry
   }
@@ -90,5 +88,4 @@ object MetricHelper {
       Some(reporter)
     } else None
   }
-
 }
