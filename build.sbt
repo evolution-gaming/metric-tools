@@ -18,6 +18,8 @@ crossScalaVersions := Seq("2.12.4", "2.11.11")
 
 releaseCrossBuild := true
 
+resolvers += Resolver.bintrayRepo("evolutiongaming", "maven")
+
 scalacOptions ++= Seq(
   "-encoding", "UTF-8",
   "-feature",
