@@ -65,8 +65,9 @@ lazy val `prometheus-akka-http-exporter` = (project in file("prometheus-akka-htt
     .settings(Seq(
       name := "prometheus-akka-http-exporter",
       libraryDependencies ++= Seq(
-        "com.typesafe.akka" %% "akka-actor" % "2.5.13" % Provided,
         "com.typesafe.akka" %% "akka-http" % "10.1.1" % Provided,
         "com.typesafe.akka" %% "akka-http-testkit" % "10.1.1" % Test
-      )
+      ) ++ Seq(
+        "com.typesafe.akka" %% "akka-actor",
+        "com.typesafe.akka" %% "akka-stream").map(_ % "2.5.13" % Provided)
     )).dependsOn(`metric-prometheus`)
