@@ -1,4 +1,4 @@
-package com.evolutiongaming.metrics
+package com.evolutiongaming.metric
 
 import scala.collection.concurrent.TrieMap
 
