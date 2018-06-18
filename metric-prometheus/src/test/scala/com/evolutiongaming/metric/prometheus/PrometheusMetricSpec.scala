@@ -52,4 +52,17 @@ class PrometheusMetricSpec extends fixture.FlatSpec with Matchers {
       """.stripMargin
   }
 
+  it should "record standard jvm metric" in { _ =>
+    val metrics = PrometheusMetric()
+    metrics.report.text should (
+      include("jvm_threads_")
+        and include("process_cpu_")
+        and include("process_open_")
+        and include("jvm_buffer_pool_")
+        and include("jvm_memory_")
+        and include("jvm_gc_")
+        and include("jvm_classes_")
+      )
+  }
+
 }
