@@ -1,56 +1,99 @@
 package com.evolutiongaming.metric.prometheus
 
-import com.evolutiongaming.metric.Metric
-import io.prometheus.client.{Collector, CollectorRegistry, Counter => PCounter, Gauge => PGauge, Histogram => PHistogram}
+import com.evolutiongaming.metric.{LabelGen, ListGen, Metric}
+import io.prometheus.client.{CollectorRegistry, Counter => PCounter, Gauge => PGauge, Histogram => PHistogram}
+import shapeless.HList
+import shapeless.ops.hlist
 
 class PrometheusMetric(registry: CollectorRegistry) extends Metric {
 
   def report: Report = Report(registry)
 
-  override def counter(name: String, help: String, labelNames: Seq[String]) = {
-    val underlying = PCounter.build(name, help).labelNames(labelNames: _*).create()
+  class PrometheusCounter[N, H <: HList](name: String, help: String, labelNames: N)(
+    implicit lgen: LabelGen[N, H], NL: ListGen[H]
+  ) extends Counter[N, H] {
+
+    private val underlying = PCounter.build(name, help).labelNames(NL.gen(lgen.gen(labelNames)): _*).create()
     registry.register(underlying)
-    new PrometheusCounter(Seq.empty, underlying)
+
+    override def inc[P, L <: HList](labels: P)(
+      implicit ngen: LabelGen[P, L], align: hlist.Align[H, L], LL: ListGen[L]
+    ): Unit =
+      underlying.labels(LL.gen(ngen.gen(labels)): _*).inc()
+
+    override def inc[P, L <: HList](i: Double, labels: P)(
+      implicit ngen: LabelGen[P, L], align: hlist.Align[H, L], LL: ListGen[L]
+    ): Unit =
+      underlying.labels(LL.gen(ngen.gen(labels)): _*).inc(i)
   }
 
-  override def gauge(name: String, help: String, labelNames: Seq[String]) = {
-    val underlying = PGauge.build(name, help).labelNames(labelNames: _*).create()
+  class PrometheusGauge[N, H <: HList](name: String, help: String, labelNames: N)(
+    implicit lgen: LabelGen[N, H], NL: ListGen[H]
+  ) extends Gauge[N, H] {
+
+    private val underlying = PGauge.build(name, help).labelNames(NL.gen(lgen.gen(labelNames)): _*).create()
     registry.register(underlying)
-    new PrometheusGauge(Seq.empty, underlying)
+
+    override def dec[P, L <: HList](labels: P)(
+      implicit ngen: LabelGen[P, L], align: hlist.Align[H, L], LL: ListGen[L]
+    ): Unit =
+      underlying.labels(LL.gen(ngen.gen(labels)): _*).dec()
+
+    override def set[P, L <: HList](i: Double, labels: P)(
+      implicit ngen: LabelGen[P, L], align: hlist.Align[H, L], LL: ListGen[L]
+    ): Unit =
+      underlying.labels(LL.gen(ngen.gen(labels)): _*).set(i)
+
+    override def inc[P, L <: HList](labels: P)(
+      implicit ngen: LabelGen[P, L], align: hlist.Align[H, L], LL: ListGen[L]
+    ): Unit =
+      underlying.labels(LL.gen(ngen.gen(labels)): _*).inc()
+
+    override def inc[P, L <: HList](i: Double, labels: P)(
+      implicit ngen: LabelGen[P, L], align: hlist.Align[H, L], LL: ListGen[L]
+    ): Unit =
+      underlying.labels(LL.gen(ngen.gen(labels)): _*).inc(i)
   }
 
-  override def histogram(name: String, help: String, labelNames: Seq[String], buckets: Vector[Double]) = {
-    val underlying = PHistogram.build(name, help)
-      .labelNames(labelNames: _*)
+  class PrometheusHistogram[N, H <: HList](name: String, help: String, labelNames: N, buckets: List[Double])(
+    implicit lgen: LabelGen[N, H], NL: ListGen[H]
+  ) extends Histogram[N, H] {
+
+    private val underlying = PHistogram.build(name, help)
+      .labelNames(NL.gen(lgen.gen(labelNames)): _*)
       .buckets(buckets: _*)
       .create()
     registry.register(underlying)
-    new PrometheusHistogram(Seq.empty, underlying)
+
+    override def startTimer[P, L <: HList](labels: P)(
+      implicit ngen: LabelGen[P, L], align: hlist.Align[H, L], LL: ListGen[L]
+    ): Timer =
+      new Timer {
+        private val timer = underlying.labels(LL.gen(ngen.gen(labels)): _*).startTimer()
+
+        override def stop(): Double = timer.observeDuration()
+      }
+
+    override def observed[P, L <: HList](i: Double, labels: P)(
+      implicit ngen: LabelGen[P, L], align: hlist.Align[H, L], LL: ListGen[L]
+    ): Unit =
+      underlying.labels(LL.gen(ngen.gen(labels)): _*).observe(i)
   }
 
-  def register(collector: Collector): Unit = registry.register(collector)
+  override def counter[N, H <: HList](name: String, help: String, labelNames: N)(
+    implicit lgen: LabelGen[N, H], NL: ListGen[H]
+  ): Counter[N, H] =
+    new PrometheusCounter[N, H](name, help, labelNames)
 
-  class PrometheusCounter(labels: Seq[String], counter: PCounter) extends Counter {
-    override def labels(labels: Seq[String]): Counter = new PrometheusCounter(labels, counter)
-    override def inc(): Unit = counter.labels(labels: _*).inc()
-    override def inc(i: Double): Unit = counter.labels(labels: _*).inc(i)
-  }
+  override def gauge[N, H <: HList](name: String, help: String, labelNames: N)(
+    implicit lgen: LabelGen[N, H], NL: ListGen[H]
+  ): Gauge[N, H] =
+    new PrometheusGauge[N, H](name, help, labelNames)
 
-  class PrometheusGauge(labels: Seq[String], gauge: PGauge) extends Gauge {
-    override def labels(labels: Seq[String]): Gauge = new PrometheusGauge(labels, gauge)
-    override def inc(): Unit = gauge.labels(labels: _*).inc()
-    override def dec(): Unit = gauge.labels(labels: _*).dec()
-    override def set(i: Double): Unit = gauge.labels(labels: _*).set(i)
-  }
-
-  class PrometheusHistogram(labels: Seq[String], histogram: PHistogram) extends Histogram {
-    override def startTimer: Timer = new Timer {
-      private val timer = histogram.labels(labels: _*).startTimer()
-      override def stop(): Double = timer.observeDuration()
-    }
-    override def observed(dur: Double): Unit = histogram.labels(labels: _*).observe(dur)
-    override def labels(labels: Seq[String]): Histogram = new PrometheusHistogram(labels, histogram)
-  }
+  override def histogram[N, H <: HList](name: String, help: String, labelNames: N, buckets: List[Double])(
+    implicit lgen: LabelGen[N, H], NL: ListGen[H]
+  ): Histogram[N, H] =
+    new PrometheusHistogram[N, H](name, help, labelNames, buckets)
 }
 
 object PrometheusMetric {

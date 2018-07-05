@@ -8,6 +8,7 @@ object Version {
   val Prometheus = "0.4.0"
   val AkkaHttp = "10.1.3"
   val Akka = "2.5.13"
+  val Shapeless = "2.3.3"
 }
 
 object Dependencies {
@@ -33,4 +34,6 @@ object Dependencies {
 
   val AkkaActor = "com.typesafe.akka" %% "akka-actor" % Version.Akka % Provided
   val AkkaStreams = "com.typesafe.akka" %% "akka-stream" % Version.Akka % Provided
+
+  val Shapeless = "com.chuusai" %% "shapeless" % Version.Shapeless
 }

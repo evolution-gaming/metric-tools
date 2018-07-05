@@ -38,7 +38,8 @@ lazy val `metric-tools` = (project in file("metric-tools"))
 lazy val `metric-api` = (project in file("metric-api"))
   .settings(commonSettings)
   .settings(Seq(
-    name := "metric-api"
+    name := "metric-api",
+    libraryDependencies += Shapeless
   ))
 
 lazy val `metric-prometheus` = (project in file("metric-prometheus"))
