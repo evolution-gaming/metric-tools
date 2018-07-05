@@ -9,7 +9,7 @@ trait LabelEncoder[T] {
   def encode(t: T): String
 }
 object LabelEncoder {
-  implicit val stringStringEncder: LabelEncoder[String] = new LabelEncoder[String] {
+  implicit val stringInstance: LabelEncoder[String] = new LabelEncoder[String] {
     override def encode(t: String): String = t
   }
 }
