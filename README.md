@@ -25,8 +25,14 @@ Using metrics
 
 ```scala
 val metrics: Metric = PrometheusMetric() //it will be created on default metric registry and will register all jvm collectors 
-val g = metrics.gauge("test", "provides test gauge", Seq.empty)
-g.set(6.6)
+//when no labels needed provide Unit.
+val g = metrics.gauge("test", "provides test gauge", ())
+g.set(6.6, ())
+
+// any product with strings can be provided as labels and names
+// to support other types, LabelEncoder implicit instance should be in scope 
+val counter = metrics.counter("test_c", "provides test counter", ("label_name1", "label_name"))
+counter.inc(1.0, ("label1", "label2"))
 ....
 
 val metricRoute = AkkaHttpPrometheusExporterRoute(metrics) //by default metrics are exposed on /metrics, but can be overriden by passing Configuration
