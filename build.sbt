@@ -12,9 +12,9 @@ organizationHomepage := Some(url("http://evolutiongaming.com"))
 
 bintrayOrganization := Some("evolutiongaming")
 
-scalaVersion := "2.12.4"
+scalaVersion := crossScalaVersions.value.head
 
-crossScalaVersions := Seq("2.12.4", "2.11.12")
+crossScalaVersions := Seq("2.12.8")
 
 releaseCrossBuild := true
 
@@ -35,12 +35,12 @@ scalacOptions ++= Seq(
 
 scalacOptions in (Compile,doc) ++= Seq("-groups", "-implicits", "-no-link-warnings")
 
-val metricsVersion = "3.2.5"
+val metricsVersion = "4.0.5"
 
 libraryDependencies ++= Seq(
   "io.dropwizard.metrics" % "metrics-core" % metricsVersion,
   "io.dropwizard.metrics" % "metrics-graphite" % metricsVersion,
-  "com.typesafe" % "config" % "1.3.2",
-  "com.evolutiongaming" %% "executor-tools" % "1.0.0")
+  "com.typesafe" % "config" % "1.3.3",
+  "com.evolutiongaming" %% "executor-tools" % "1.0.1")
 
 licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")))

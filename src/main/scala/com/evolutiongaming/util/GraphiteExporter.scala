@@ -5,17 +5,21 @@ import java.util.concurrent.TimeUnit
 
 import com.codahale.metrics.graphite.{Graphite, GraphiteReporter}
 import com.codahale.metrics.{MetricFilter, MetricRegistry}
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.Config
 
 object GraphiteExporter {
-  private lazy val config = ConfigFactory.load
 
-  def export(domain: String, registry: MetricRegistry): MetricRegistry = {
-    startGraphiteExporter(domain, registry)
+  def export(domain: String, registry: MetricRegistry, config: Config): MetricRegistry = {
+    startGraphiteExporter(domain, registry, config)
     registry
   }
 
-  def startGraphiteExporter(domain: String, registry: MetricRegistry): Option[GraphiteReporter] = {
+  def startGraphiteExporter(
+    domain: String,
+    registry: MetricRegistry,
+    config: Config
+  ): Option[GraphiteReporter] = {
+
     val host = config.getString("graphite.host")
     if (!host.isEmpty) {
       val node = config.getString("graphite.node")
