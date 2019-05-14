@@ -12,7 +12,7 @@ import pureconfig.{ConfigReader, loadConfig}
 
 object GraphiteExporter {
 
-  def export(domain: String, registry: MetricRegistry, config: Config): MetricRegistry = {
+  def export(domain: String, registry: MetricRegistry, config: TypesafeConfig): MetricRegistry = {
     startGraphiteExporter(domain, registry, config)
     registry
   }
