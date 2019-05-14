@@ -20,8 +20,8 @@ object GraphiteExporter {
     config: Config
   ): Option[GraphiteReporter] = {
 
-    val host = config.getString("graphite.host")
-    if (!host.isEmpty) {
+    if (config.hasPath("graphite.host")) {
+      val host = config.getString("graphite.host")
       val node = config.getString("graphite.node")
       val port = config.getInt("graphite.port")
       val graphite = new Graphite(new InetSocketAddress(host, port))
