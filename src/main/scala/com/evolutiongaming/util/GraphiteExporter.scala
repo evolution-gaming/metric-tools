@@ -5,7 +5,10 @@ import java.util.concurrent.TimeUnit
 
 import com.codahale.metrics.graphite.{Graphite, GraphiteReporter}
 import com.codahale.metrics.{MetricFilter, MetricRegistry}
-import com.typesafe.config.Config
+import com.typesafe.config.{Config => TypesafeConfig}
+import pureconfig.generic.semiauto.deriveReader
+import pureconfig.{ConfigReader, loadConfig}
+
 
 object GraphiteExporter {
 
@@ -17,22 +20,37 @@ object GraphiteExporter {
   def startGraphiteExporter(
     domain: String,
     registry: MetricRegistry,
-    config: Config
+    config: TypesafeConfig
   ): Option[GraphiteReporter] = {
 
-    if (config.hasPath("graphite.host")) {
-      val host = config.getString("graphite.host")
-      val node = config.getString("graphite.node")
-      val port = config.getInt("graphite.port")
-      val graphite = new Graphite(new InetSocketAddress(host, port))
-      val reporter = GraphiteReporter.forRegistry(registry)
-        .prefixedWith(node + "." + domain)
-        .convertRatesTo(TimeUnit.SECONDS)
-        .convertDurationsTo(TimeUnit.MILLISECONDS)
-        .filter(MetricFilter.ALL)
-        .build(graphite)
-      reporter.start(1, TimeUnit.MINUTES)
-      Some(reporter)
-    } else None
+    for {
+      config <- loadConfig[Config](config, "graphite").toOption
+      if config.host.nonEmpty
+    } yield {
+      startGraphiteExporter(domain, registry, config)
+    }
+  }
+
+  def startGraphiteExporter(
+    domain: String,
+    registry: MetricRegistry,
+    config: Config
+  ): GraphiteReporter = {
+    val graphite = new Graphite(new InetSocketAddress(config.host, config.port))
+    val reporter = GraphiteReporter.forRegistry(registry)
+      .prefixedWith(s"${ config.node }.$domain")
+      .convertRatesTo(TimeUnit.SECONDS)
+      .convertDurationsTo(TimeUnit.MILLISECONDS)
+      .filter(MetricFilter.ALL)
+      .build(graphite)
+    reporter.start(1, TimeUnit.MINUTES)
+    reporter
+  }
+
+  
+  final case class Config(host: String, node: String, port: Int = 2003)
+
+  object Config {
+    implicit val ConfigConfigReader: ConfigReader[Config] = deriveReader[Config]
   }
 }
