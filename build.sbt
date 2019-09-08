@@ -14,24 +14,11 @@ bintrayOrganization := Some("evolutiongaming")
 
 scalaVersion := crossScalaVersions.value.head
 
-crossScalaVersions := Seq("2.12.8")
+crossScalaVersions := Seq("2.13.0", "2.12.9")
 
 releaseCrossBuild := true
 
 resolvers += Resolver.bintrayRepo("evolutiongaming", "maven")
-
-scalacOptions ++= Seq(
-  "-encoding", "UTF-8",
-  "-feature",
-  "-unchecked",
-  "-deprecation",
-  "-Xfatal-warnings",
-  "-Xlint",
-  "-Yno-adapted-args",
-  "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Xfuture"
-)
 
 scalacOptions in (Compile,doc) ++= Seq("-groups", "-implicits", "-no-link-warnings")
 
@@ -41,7 +28,7 @@ libraryDependencies ++= Seq(
   "io.dropwizard.metrics"  % "metrics-core"     % metricsVersion,
   "io.dropwizard.metrics"  % "metrics-graphite" % metricsVersion,
   "com.typesafe"           % "config"           % "1.3.4",
-  "com.github.pureconfig" %% "pureconfig"       % "0.10.2",
-  "com.evolutiongaming"   %% "executor-tools"   % "1.0.1")
+  "com.github.pureconfig" %% "pureconfig"       % "0.11.1",
+  "com.evolutiongaming"   %% "executor-tools"   % "1.0.2")
 
 licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")))

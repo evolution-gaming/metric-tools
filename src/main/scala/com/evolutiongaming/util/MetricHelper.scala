@@ -3,7 +3,6 @@ package com.evolutiongaming.util
 import com.codahale.metrics._
 import com.evolutiongaming.concurrent.CurrentThreadExecutionContext
 
-import scala.compat.Platform
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
@@ -17,9 +16,9 @@ object MetricHelper {
 
   implicit class RichTimer(val timer: Timer) extends AnyVal {
     def timeExceed[T](limit: FiniteDuration)(f: => T): T = {
-      val start = Platform.currentTime
+      val start = System.currentTimeMillis()
       try f finally {
-        val stop = Platform.currentTime
+        val stop = System.currentTimeMillis()
         val duration = stop - start
         if (duration >= limit.toMillis) timer.update(duration, MILLISECONDS)
       }
@@ -34,24 +33,27 @@ object MetricHelper {
 
     def timeFunc[T](f: => T): T = {
       val time = timer.time()
-      try f finally time.stop()
+      try f finally {
+        time.stop()
+        ()
+      }
     }
   }
 
   implicit class HistogramOps(val histogram: Histogram) extends AnyVal {
 
     def timeFunc[T](f: => T): T = {
-      val start = Platform.currentTime
+      val start = System.currentTimeMillis()
       try f finally histogram.timeTillNow(start)
     }
 
     def timeFuture[T](f: => Future[T]): Future[T] = {
-      val start = Platform.currentTime
+      val start = System.currentTimeMillis()
       f andThen { case _ => histogram.timeTillNow(start) }
     }
 
     def timeTillNow(start: Long): Unit = {
-      histogram.update(Platform.currentTime - start)
+      histogram.update(System.currentTimeMillis() - start)
     }
   }
 
