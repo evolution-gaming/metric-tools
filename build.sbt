@@ -22,13 +22,13 @@ resolvers += Resolver.bintrayRepo("evolutiongaming", "maven")
 
 scalacOptions in (Compile,doc) ++= Seq("-groups", "-implicits", "-no-link-warnings")
 
-val metricsVersion = "3.2.6"
+val metricsVersion = "4.1.1"
 
 libraryDependencies ++= Seq(
   "io.dropwizard.metrics"  % "metrics-core"     % metricsVersion,
   "io.dropwizard.metrics"  % "metrics-graphite" % metricsVersion,
-  "com.typesafe"           % "config"           % "1.3.4",
-  "com.github.pureconfig" %% "pureconfig"       % "0.11.1",
+  "com.typesafe"           % "config"           % "1.4.0",
+  "com.github.pureconfig" %% "pureconfig"       % "0.12.1",
   "com.evolutiongaming"   %% "executor-tools"   % "1.0.2")
 
 licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")))

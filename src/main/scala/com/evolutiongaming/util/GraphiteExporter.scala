@@ -7,7 +7,7 @@ import com.codahale.metrics.graphite.{Graphite, GraphiteReporter}
 import com.codahale.metrics.{MetricFilter, MetricRegistry}
 import com.typesafe.config.{Config => TypesafeConfig}
 import pureconfig.generic.semiauto.deriveReader
-import pureconfig.{ConfigReader, loadConfig}
+import pureconfig.{ConfigReader, ConfigSource}
 
 
 object GraphiteExporter {
@@ -22,10 +22,12 @@ object GraphiteExporter {
     registry: MetricRegistry,
     config: TypesafeConfig
   ): Option[GraphiteReporter] = {
-
+    val config1 = ConfigSource
+      .fromConfig(config)
+      .at("graphite")
+      .load[Config]
     for {
-      config <- loadConfig[Config](config, "graphite").toOption
-      if config.host.nonEmpty
+      config <- config1.toOption if config.host.nonEmpty
     } yield {
       startGraphiteExporter(domain, registry, config)
     }
