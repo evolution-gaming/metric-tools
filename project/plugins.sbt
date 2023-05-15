@@ -8,4 +8,6 @@ addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.2.7")
 
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.12")
 
-addSbtPlugin("com.evolutiongaming" % "sbt-scalac-opts-plugin" % "0.0.4")
+addSbtPlugin("com.evolution" % "sbt-scalac-opts-plugin" % "0.0.9")
+
+addDependencyTreePlugin
