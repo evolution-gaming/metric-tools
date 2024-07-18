@@ -5,7 +5,7 @@ lazy val root = project
   .settings(
     name                 := "metric-tools",
     organization         := "com.evolutiongaming",
-    homepage             := Some(new URL("https://github.com/evolution-gaming/metric-tools")),
+    homepage             := Some(url("https://github.com/evolution-gaming/metric-tools")),
     startYear            := Some(2017),
     organizationName     := "Evolution",
     organizationHomepage := Some(url("https://www.evolution.com/")),
@@ -22,4 +22,7 @@ lazy val root = project
       "com.github.pureconfig" %% "pureconfig" % "0.17.3",
       "com.evolutiongaming" %% "executor-tools" % "1.0.2"
     ),
+    //addCommandAlias("check", "all versionPolicyCheck Compile/doc"),
+    addCommandAlias("check", "show version"),
+    addCommandAlias("build", "+all compile test"),
   )
