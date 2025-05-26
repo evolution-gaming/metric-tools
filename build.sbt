@@ -1,5 +1,7 @@
 val metricsVersion = "4.1.1"
 
+val pureconfigVersion = "0.17.8"
+
 lazy val root = project
   .in(file("."))
   .settings(
@@ -10,19 +12,30 @@ lazy val root = project
     organizationName     := "Evolution",
     organizationHomepage := Some(url("https://www.evolution.com/")),
     scalaVersion         := crossScalaVersions.value.head,
-    crossScalaVersions   := Seq("2.13.10", "2.12.17"),
-    releaseCrossBuild    := true,
-    licenses             := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
+    crossScalaVersions   := Seq("2.13.16", "3.3.6"),
+    licenses             := Seq(("MIT", url("https://opensource.org/licenses/MIT"))),
     publishTo            := Some(Resolver.evolutionReleases),
     Compile / doc / scalacOptions += "-no-link-warnings",
     libraryDependencies ++= Seq(
-      "io.dropwizard.metrics" % "metrics-core" % metricsVersion,
-      "io.dropwizard.metrics" % "metrics-graphite" % metricsVersion,
-      "com.typesafe" % "config" % "1.4.2",
-      "com.github.pureconfig" %% "pureconfig" % "0.17.3",
-      "com.evolutiongaming" %% "executor-tools" % "1.0.2"
+      "io.dropwizard.metrics"  % "metrics-core"     % metricsVersion,
+      "io.dropwizard.metrics"  % "metrics-graphite" % metricsVersion,
+      "com.typesafe"           % "config"           % "1.4.3",
+      "com.github.pureconfig" %% "pureconfig-core"  % pureconfigVersion,
+      "com.evolutiongaming"   %% "executor-tools"   % "1.0.5",
     ),
-    //addCommandAlias("check", "all versionPolicyCheck Compile/doc"),
-    addCommandAlias("check", "show version"),
+    libraryDependencies ++= crossSettings(
+      scalaVersion = scalaVersion.value,
+      if2 = Seq("com.github.pureconfig" %% "pureconfig-generic" % pureconfigVersion),
+      if3 = Seq("com.github.pureconfig" %% "pureconfig-generic-scala3" % pureconfigVersion),
+    ),
+    versionPolicyIntention := Compatibility.BinaryCompatible,
+    addCommandAlias("check", "all versionPolicyCheck scalafmtCheckAll scalafmtSbtCheck"),
+    addCommandAlias("fmt", "all scalafmtAll scalafmtSbt"),
     addCommandAlias("build", "+all compile test"),
   )
+
+def crossSettings[T](scalaVersion: String, if3: T, if2: T): T =
+  scalaVersion match {
+    case version if version.startsWith("3") => if3
+    case _                                  => if2
+  }

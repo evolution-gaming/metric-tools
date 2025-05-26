@@ -9,7 +9,6 @@ import com.typesafe.config.{Config => TypesafeConfig}
 import pureconfig.generic.semiauto.deriveReader
 import pureconfig.{ConfigReader, ConfigSource}
 
-
 object GraphiteExporter {
 
   def `export`(domain: String, registry: MetricRegistry, config: TypesafeConfig): MetricRegistry = {
@@ -20,7 +19,7 @@ object GraphiteExporter {
   def startGraphiteExporter(
     domain: String,
     registry: MetricRegistry,
-    config: TypesafeConfig
+    config: TypesafeConfig,
   ): Option[GraphiteReporter] = {
     val config1 = ConfigSource
       .fromConfig(config)
@@ -28,19 +27,18 @@ object GraphiteExporter {
       .load[Config]
     for {
       config <- config1.toOption if config.host.nonEmpty
-    } yield {
-      startGraphiteExporter(domain, registry, config)
-    }
+    } yield startGraphiteExporter(domain, registry, config)
   }
 
   def startGraphiteExporter(
     domain: String,
     registry: MetricRegistry,
-    config: Config
+    config: Config,
   ): GraphiteReporter = {
     val graphite = new Graphite(new InetSocketAddress(config.host, config.port))
-    val reporter = GraphiteReporter.forRegistry(registry)
-      .prefixedWith(s"${ config.node }.$domain")
+    val reporter = GraphiteReporter
+      .forRegistry(registry)
+      .prefixedWith(s"${config.node}.$domain")
       .convertRatesTo(TimeUnit.SECONDS)
       .convertDurationsTo(TimeUnit.MILLISECONDS)
       .filter(MetricFilter.ALL)
@@ -49,7 +47,6 @@ object GraphiteExporter {
     reporter
   }
 
-  
   final case class Config(host: String, node: String, port: Int = 2003)
 
   object Config {
