@@ -3,12 +3,12 @@ package com.evolutiongaming.util
 import com.codahale.metrics._
 import com.evolutiongaming.concurrent.CurrentThreadExecutionContext
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 object MetricHelper {
-  implicit private val ec: ExecutionContext = CurrentThreadExecutionContext
+  private implicit val ec: ExecutionContext = CurrentThreadExecutionContext
 
   object GaugeF {
     def apply[T](f: => T): Gauge[T] = new Gauge[T] { def getValue: T = f }
@@ -19,7 +19,7 @@ object MetricHelper {
       val start = System.currentTimeMillis()
       try f
       finally {
-        val stop     = System.currentTimeMillis()
+        val stop = System.currentTimeMillis()
         val duration = stop - start
         if (duration >= limit.toMillis) timer.update(duration, MILLISECONDS)
       }

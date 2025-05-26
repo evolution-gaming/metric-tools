@@ -1,13 +1,13 @@
 package com.evolutiongaming.util
 
-import java.net.InetSocketAddress
-import java.util.concurrent.TimeUnit
-
 import com.codahale.metrics.graphite.{Graphite, GraphiteReporter}
 import com.codahale.metrics.{MetricFilter, MetricRegistry}
 import com.typesafe.config.{Config => TypesafeConfig}
 import pureconfig.generic.semiauto.deriveReader
 import pureconfig.{ConfigReader, ConfigSource}
+
+import java.net.InetSocketAddress
+import java.util.concurrent.TimeUnit
 
 object GraphiteExporter {
 
@@ -38,7 +38,7 @@ object GraphiteExporter {
     val graphite = new Graphite(new InetSocketAddress(config.host, config.port))
     val reporter = GraphiteReporter
       .forRegistry(registry)
-      .prefixedWith(s"${config.node}.$domain")
+      .prefixedWith(s"${ config.node }.$domain")
       .convertRatesTo(TimeUnit.SECONDS)
       .convertDurationsTo(TimeUnit.MILLISECONDS)
       .filter(MetricFilter.ALL)
