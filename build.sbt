@@ -1,4 +1,4 @@
-val metricsVersion = "4.1.1"
+val metricsVersion = "4.2.40"
 
 val pureconfigVersion = "0.17.8"
 
