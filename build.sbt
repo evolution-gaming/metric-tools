@@ -1,6 +1,6 @@
 val metricsVersion = "4.2.40"
 
-val pureconfigVersion = "0.17.8"
+val pureconfigVersion = "0.17.10"
 
 lazy val root = project
   .in(file("."))
