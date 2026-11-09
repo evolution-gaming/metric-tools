@@ -20,7 +20,7 @@ lazy val root = project
       "io.dropwizard.metrics" % "metrics-core" % metricsVersion,
       "io.dropwizard.metrics" % "metrics-graphite" % metricsVersion,
       "com.rabbitmq" % "amqp-client" % "5.37.1",
-      "com.typesafe" % "config" % "1.4.9",
+      "com.typesafe" % "config" % "1.4.10",
       "com.github.pureconfig" %% "pureconfig-core" % pureconfigVersion,
       "com.evolutiongaming" %% "executor-tools" % "1.0.5",
     ),
